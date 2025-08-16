@@ -2,18 +2,13 @@ class AVLTree:
 	root = None
 
 class AVLNode:
-        parent = None
-        leftnode = None
-        rightnode = None
-        key = None
-        value = None
-        bf = None
-
-
-# rotateRight(Tree,avlnode) 
-# Descripción: Implementa la operación rotación a la derecha 
-# Entrada: Un Tree junto a un AVLnode sobre el cual se va a operar la rotación a la  derecha
-# Salida: retorna la nueva raíz
+      parent = None
+      leftnode = None
+      rightnode = None
+      key = None
+      value = None
+      bf = None
+      height = None #atributo para guardar las alturas de cada nodo
 
 def mostrar_arbol(node, nivel=0, prefijo="Raíz: "):
     """Muestra el árbol AVL en consola."""
@@ -23,57 +18,91 @@ def mostrar_arbol(node, nivel=0, prefijo="Raíz: "):
         mostrar_arbol(node.rightnode, nivel + 1, "Der: ")
 
 def rotate_right(tree, avlnode):
+      new_root = avlnode.leftnode
+      avlnode.leftnode = new_root.rightnode
+
+      if new_root.rightnode != None:
+            new_root.rightnode.parent = avlnode
+      new_root.parent = avlnode.parent
+
+      if avlnode.parent == None:
+            tree.root = new_root
+      else:
+            if avlnode.parent.rightnode == avlnode:
+                  avlnode.parent.rightnode = new_root
+            else:
+                  avlnode.parent.leftnode = new_root
+      new_root.rightnode = avlnode
+      avlnode.parent = new_root
+
+      return tree.root
+
+
+def rotate_left(tree,avlnode):
+
+      new_root = avlnode.rightnode
+      avlnode.rightnode = new_root.leftnode
+
+      if new_root.leftnode != None:
+            new_root.leftnode.parent = avlnode
+      new_root.parent = avlnode.parent
+
+      if avlnode.parent == None:
+            tree.root = new_root
+      else:
+            if avlnode.parent.leftnode == avlnode:
+                  avlnode.parent.leftnode = new_root
+            else:
+                  avlnode.parent.rightnode = new_root
+      new_root.leftnode = avlnode
+      avlnode.parent = new_root              
+
+      return tree.root
+
+def calculateBalance(AVL):
+
+      if AVL is None:
+            return -1
       
-      if tree == None:
-            return None
-      elif avlnode.bf > 1:
-            if avlnode.leftnode.rightnode != None:
-                tree.root = avlnode.leftnode
-                avlnode.parent = 
-                  
+      altura_derecha = calculateBalance(AVL.rightnode)
+      altura_izquierda = calculateBalance(AVL.leftnode)
       
-        
+      AVL.height =  1 + max(altura_derecha,altura_izquierda)
+
+      AVL.bf = altura_izquierda - altura_derecha
+
+      return AVL
+
+def reBalanceR(node):
+    if node is None:
+        return None
+
+    # Primero rebalanceamos los hijos
+    node.leftnode = reBalanceR(node.leftnode)
+    node.rightnode = reBalanceR(node.rightnode)
+
+    calculateBalance(node)
+
+    if node.bf > 1:      
+        node = rotate_left(node)
+    elif node.bf < -1:     
+        node = rotate_right(node)
+
+    return node 
+
+def reBalance(tree):
+    if tree and tree.root:
+        tree.root = reBalanceR(tree.root)
+
+def insertAVL(Tree):
+     insert(Tree,Tree.value, Tree.key) #insert de binarytree.py
+     reBalance(Tree)
+
+def deleteAVL(Tree):
+      delete(Tree,Tree.value,Tree.key) #delete de binarytree.py
 
 
 if __name__ == '__main__':
-        from algo1 import *
+ 
+      from binarytree import *
 
-        T = AVLTree()
-        nodeE = AVLNode()
-        T.root = nodeE
-        nodeE.value = 'E'
-        nodeE.bf = 2
-
-        nodeC = AVLNode()
-        nodeC.bf = 1
-        nodeC.value = 'C'
-        nodeE.leftnode = nodeC
-        nodeE.value = 'E'
-        nodeE.bf = 2
-
-        nodeF = AVLNode()
-        nodeF.value = 'F'
-        nodeE.rightnode = nodeF
-        nodeF.bf = 0
-
-        nodeB = AVLNode()
-        nodeB.value = 'B'
-        nodeC.leftnode = nodeB
-        nodeC.value = 'C'
-        nodeB.bf = 1
-
-        nodeD = AVLNode()
-        nodeD.value = 'D'
-        nodeC.rightnode = nodeD
-        nodeD.bf = 0
-
-        nodeA = AVLNode()
-        nodeA.value = 'A'
-        nodeB.leftnode = nodeA
-        nodeA.bf = 0
-
-        print()
-        mostrar_arbol(T.root)
-        print()
-        print("-------ROTATE RIGHT------")
-        rotate_left(T.root, nodeE)
